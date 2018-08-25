@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -23,12 +24,13 @@ namespace BankAPI.Models
         //[Required(ErrorMessage = "Phone Number is required")]
         [StringLength(8)]
         public string PhoneNumber { get; set; }
+        //[Required, DataType(DataType.Password)]
+        //[JsonIgnore]
+        public string Password { get; set; }
         //[Required(ErrorMessage = "Email is required")]
         [StringLength(30)]
         public string Email { get; set; }
         public List<Account> Accounts { get; set; }
-        [Required, DataType(DataType.Password)]
-        public string Password { get; set; }
         //[Required]
         [StringLength(10)]
         public string socialNumber { get; set; }

@@ -45,6 +45,11 @@ namespace BankAPI.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Account acco)
         {
+            bool accoEx = context.Accounts.Any(x => x.AccountNumber == acco.AccountNumber);
+            if(accoEx)
+            {
+                ModelState.AddModelError("accountNumber", "The account number already exist.");
+            }
             if (ModelState.IsValid)
             {
                 context.Accounts.Add(acco);

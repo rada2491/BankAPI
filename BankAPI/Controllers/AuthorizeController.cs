@@ -24,25 +24,59 @@ namespace BankAPI.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         //private ApplicationDbContext _app;
-        private IdentityDbContext context;
+        private readonly ApplicationDbContext _context;
 
         public AuthorizeController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration/*,
-            ApplicationDbContext app*/)
+            IConfiguration configuration,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            //_app = app;
+            _context = context;
         }
 
         [HttpGet]
         public IActionResult getAll()
         {
             var user = _userManager.Users.ToList();
-            return Ok(user);
+            var usList = new List<User>();
+
+            foreach (var us in user)
+            {
+                try
+                {
+                    var usAcco = _context.Accounts.Where(x => x.accountOwner == us.socialNumber).ToList();
+                    us.Accounts = usAcco;
+                    
+                    var usSend = new User()
+                    {
+                        Name = us.Name,
+                        socialNumber = us.socialNumber,
+                        Email = us.Email,
+                        PhoneNumber = us.PhoneNumber,
+                        Accounts = usAcco
+                    };
+
+                    usList.Add(usSend);
+                }
+                catch (Exception)
+                {
+                    var usSend = new User()
+                    {
+                        Name = us.Name,
+                        socialNumber = us.socialNumber,
+                        Email = us.Email,
+                        PhoneNumber = us.PhoneNumber,
+                        Accounts = us.Accounts
+                    };
+                    usList.Add(usSend);
+                }
+
+            }
+            return Ok(usList);
 
         }
 
