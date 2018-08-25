@@ -17,11 +17,9 @@ namespace BankAPI.Models
         [Currency]
         public string Currency { get; set; }
         public float Balance { get; set; }
-        [ForeignKey("User")]
-        [JsonIgnore]
-        public int UserId { get; set; }
-        [JsonIgnore]
-        public int User { get; set; }
+        [Required]
+        [StringLength(10)]
+        public string accountOwner { get; set; }
 
     }
 }
