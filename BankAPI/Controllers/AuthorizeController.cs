@@ -24,21 +24,21 @@ namespace BankAPI.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         //private ApplicationDbContext _app;
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
 
         public AuthorizeController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration,
-            ApplicationDbContext context)
+            IConfiguration configuration/*,
+            ApplicationDbContext context*/)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            _context = context;
+            //_context = context;
         }
 
-        [HttpGet]
+        /*[HttpGet]
         public IActionResult getAll()
         {
             var user = _userManager.Users.ToList();
@@ -78,7 +78,7 @@ namespace BankAPI.Controllers
             }
             return Ok(usList);
 
-        }
+        }*/
 
         [Route("Create")]
         [HttpPost]

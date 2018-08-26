@@ -1,9 +1,12 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BankAPI.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,103 +14,60 @@ namespace BankAPI.Controllers
 {
     [Produces("application/json")]
     [Route("api/User")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UserController : ControllerBase
     {
-        private readonly ApplicationDbContext context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public UserController(ApplicationDbContext context)
+        public UserController(
+            UserManager<ApplicationUser> userManager,
+            ApplicationDbContext context)
         {
-            this.context = context;
+            _userManager = userManager;
+            _context = context;
         }
 
         [HttpGet]
-        public IEnumerable<User> getAll()
+        public IActionResult getAll()
         {
-
-            var allUsers = context.Users.ToList();
-
+            var user = _userManager.Users.ToList();
             var usList = new List<User>();
 
-            foreach(var us in allUsers)
+            foreach (var us in user)
             {
-                if(us.Accounts == null)
+                try
                 {
-                    usList.Add(us);
-                } else
-                {
-                    var usAcco = context.Accounts.Where(x => x.UserId == us.Id).ToList();
+                    var usAcco = _context.Accounts.Where(x => x.accountOwner == us.socialNumber).ToList();
                     us.Accounts = usAcco;
-                    usList.Add(us);
+
+                    var usSend = new User()
+                    {
+                        Name = us.Name,
+                        socialNumber = us.socialNumber,
+                        Email = us.Email,
+                        PhoneNumber = us.PhoneNumber,
+                        Accounts = usAcco
+                    };
+
+                    usList.Add(usSend);
                 }
+                catch (Exception)
+                {
+                    var usSend = new User()
+                    {
+                        Name = us.Name,
+                        socialNumber = us.socialNumber,
+                        Email = us.Email,
+                        PhoneNumber = us.PhoneNumber,
+                        Accounts = us.Accounts
+                    };
+                    usList.Add(usSend);
+                }
+
             }
+            return Ok(usList);
 
-            return usList;
-        }
-
-        [HttpGet("{id}", Name = ("userCreado"))]
-        public IActionResult GetById(int id)
-        {
-            var user = context.Users.Include(x => x.Accounts).FirstOrDefault(x => x.Id == id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(user);
-        }
-
-        [HttpPost]
-        public IActionResult Post([FromBody] User user)
-        {
-            bool userExist = context.Users.Any(x => x.socialNumber == user.socialNumber);
-            if(userExist)
-            {
-                ModelState.AddModelError("socialNumber", "Social Number already exist");
-            }
-            if (ModelState.IsValid)
-            {
-                context.Users.Add(user);
-                context.SaveChanges();
-                return new CreatedAtRouteResult("userCreado", new { id = user.Id }, user);
-            }
-
-            return BadRequest(ModelState);
-        }
-
-        [HttpPatch("{id}")]
-        public IActionResult Patch([FromBody] User user, int id)
-        {
-            var us = context.Users.Find(id);
-
-            if (us == null)
-            {
-                return BadRequest();
-            }
-
-            us.Name = user.Name;
-            us.UserType = user.UserType;
-            us.PhoneNumber = user.PhoneNumber;
-            us.Email = user.Email;
-
-
-            context.Users.Update(us);
-            context.SaveChanges();
-            return Ok();
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            var user = context.Users.FirstOrDefault(x => x.Id == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            context.Users.Remove(user);
-            context.SaveChanges();
-            return Ok(user);
         }
     }
-}*/
+}

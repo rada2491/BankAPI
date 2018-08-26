@@ -32,6 +32,8 @@ namespace BankAPI
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddCors();
+
             services.AddDbContext<Models.ApplicationDbContext>(options => 
             options.UseSqlServer(Configuration.GetConnectionString("APIConnection")));
 
@@ -72,6 +74,8 @@ namespace BankAPI
             {
                 app.UseHsts();
             }
+
+            app.UseCors(builder => builder.WithOrigins("https://localhost:44318/api/autho/login").AllowAnyHeader());
 
             app.UseAuthentication();
 
