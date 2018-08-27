@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace BankAPI.Controllers
 {
@@ -23,19 +24,22 @@ namespace BankAPI.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _context;
+        //private readonly IdentityDbContext _role;
+
         //private ApplicationDbContext _app;
         //private readonly ApplicationDbContext _context;
 
         public AuthorizeController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration/*,
-            ApplicationDbContext context*/)
+            IConfiguration configuration,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            //_context = context;
+            _context = context;
         }
 
         /*[HttpGet]
@@ -94,7 +98,8 @@ namespace BankAPI.Controllers
 
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser {
+                var user = new ApplicationUser
+                {
                     UserName = model.Email,
                     Email = model.Email,
                     Name = model.Name,
@@ -144,6 +149,20 @@ namespace BankAPI.Controllers
 
         private IActionResult BuildToken(User userInfo)
         {
+
+            var autho = "";
+            var socialNumber = "";
+            if (userInfo.Email == "cbr2491@gmail.com")
+            {
+                autho = "Admin";
+            }
+            else
+            {
+                autho = "Client";
+                var social = _userManager.Users.FirstOrDefault(x => x.Email == userInfo.Email);
+                socialNumber = social.socialNumber;
+            }
+
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
@@ -163,11 +182,24 @@ namespace BankAPI.Controllers
                expires: expiration,
                signingCredentials: creds);
 
+
+            if (autho == "Admin")
+            {
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = expiration,
+                    Authorization = autho
+                });
+            }
+
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = expiration
+                expiration = expiration,
+                Authorization = socialNumber
             });
+
 
         }
     }
