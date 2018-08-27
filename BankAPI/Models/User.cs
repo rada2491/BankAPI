@@ -15,9 +15,9 @@ namespace BankAPI.Models
             Accounts = new List<Account>();
         }
 
-        /*[Required]
+        //[Required]
         [UserType]
-        public string UserType { get; set; }*/
+        public string UserType { get; set; }
         //[Required(ErrorMessage = "Name is required")]
         [StringLength(20)]
         public string Name { get; set; }
@@ -34,6 +34,7 @@ namespace BankAPI.Models
         //[Required]
         [StringLength(10)]
         public string socialNumber { get; set; }
+
 
     }
 }

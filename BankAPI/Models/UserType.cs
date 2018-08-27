@@ -10,6 +10,11 @@ namespace BankAPI.Models
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
+            if(value == null)
+            {
+                value = "Client";
+                return ValidationResult.Success;
+            }
 
             if (value.ToString() == "Admin" || value.ToString() == "Client")
             {

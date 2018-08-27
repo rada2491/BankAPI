@@ -30,9 +30,9 @@ namespace BankAPI.Controllers
         }
 
         [HttpGet("{id}", Name = ("accountCreated"))]
-        public IActionResult GetById(int id)
+        public IActionResult GetByUserId(int id)
         {
-            var acco = context.Accounts.FirstOrDefault(x => x.Id == id);
+            var acco = context.Accounts.Where(x => x.accountOwner == id.ToString()).ToList();
 
             if (acco == null)
             {
@@ -89,6 +89,27 @@ namespace BankAPI.Controllers
             context.Accounts.Remove(acc);
             context.SaveChanges();
             return Ok(acc);
+        }
+
+        [HttpPost]
+        [Route("transaction")]
+        public IActionResult transaction([FromBody] Transaction tran)
+        {
+            var ori = context.Accounts.FirstOrDefault(x => x.AccountNumber == tran.origin);
+            var dest = context.Accounts.FirstOrDefault(x => x.AccountNumber == tran.destiny);
+
+            if(ori.Balance < tran.mount)
+            {
+                ModelState.AddModelError("mount", "Not enough money in the origin account.");
+                return BadRequest(ModelState);
+            }
+
+            ori.Balance = ori.Balance - tran.mount;
+            dest.Balance = dest.Balance + tran.mount;
+
+            context.SaveChanges();
+
+            return Ok();
         }
 
     }

@@ -24,7 +24,7 @@ namespace BankAPI.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
         //private readonly IdentityDbContext _role;
 
         //private ApplicationDbContext _app;
@@ -33,13 +33,13 @@ namespace BankAPI.Controllers
         public AuthorizeController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration,
-            ApplicationDbContext context)
+            IConfiguration configuration/*,
+            ApplicationDbContext context*/)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            _context = context;
+            //_context = context;
         }
 
         /*[HttpGet]
@@ -105,7 +105,8 @@ namespace BankAPI.Controllers
                     Name = model.Name,
                     Accounts = model.Accounts,
                     socialNumber = model.socialNumber,
-                    PhoneNumber = model.PhoneNumber
+                    PhoneNumber = model.PhoneNumber,
+                    UserType = model.UserType
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
@@ -128,6 +129,15 @@ namespace BankAPI.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login([FromBody] User userInfo)
         {
+            bool exist = _userManager.Users.Any(x => x.Email == userInfo.Email);
+            if (!exist)
+            {
+                return NotFound();
+            }
+            var autho = _userManager.Users.FirstOrDefault(x => x.Email == userInfo.Email);
+            userInfo.UserType = autho.UserType;
+            userInfo.socialNumber = autho.socialNumber;
+            userInfo.Name = autho.Name;
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(userInfo.Email, userInfo.Password, isPersistent: false, lockoutOnFailure: false);
@@ -150,20 +160,7 @@ namespace BankAPI.Controllers
         private IActionResult BuildToken(User userInfo)
         {
 
-            var autho = "";
-            var socialNumber = "";
-            if (userInfo.Email == "cbr2491@gmail.com")
-            {
-                autho = "Admin";
-            }
-            else
-            {
-                autho = "Client";
-                var social = _userManager.Users.FirstOrDefault(x => x.Email == userInfo.Email);
-                socialNumber = social.socialNumber;
-            }
-
-            var claims = new[]
+              var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
                 new Claim("miValor", "Lo que yo quiera"),
@@ -183,21 +180,13 @@ namespace BankAPI.Controllers
                signingCredentials: creds);
 
 
-            if (autho == "Admin")
-            {
-                return Ok(new
-                {
-                    token = new JwtSecurityTokenHandler().WriteToken(token),
-                    expiration = expiration,
-                    Authorization = autho
-                });
-            }
-
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = expiration,
-                Authorization = socialNumber
+                Authorization = userInfo.UserType,
+                Id = userInfo.socialNumber,
+                userEmail = userInfo.Email,
+                userName = userInfo.Name
             });
 
 
