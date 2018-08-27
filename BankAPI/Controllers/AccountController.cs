@@ -6,6 +6,7 @@ using BankAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankAPI.Controllers
@@ -17,10 +18,13 @@ namespace BankAPI.Controllers
     {
 
         private readonly ApplicationDbContext context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AccountController(ApplicationDbContext context)
+        public AccountController(ApplicationDbContext context,
+            UserManager<ApplicationUser> userManager)
         {
             this.context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -46,9 +50,14 @@ namespace BankAPI.Controllers
         public IActionResult Post([FromBody] Account acco)
         {
             bool accoEx = context.Accounts.Any(x => x.AccountNumber == acco.AccountNumber);
+            bool userExi = _userManager.Users.Any(x => x.socialNumber == acco.accountOwner);
             if(accoEx)
             {
                 ModelState.AddModelError("accountNumber", "The account number already exist.");
+            }
+            if (!userExi)
+            {
+                ModelState.AddModelError("socialNumber", "The user don't exist.");
             }
             if (ModelState.IsValid)
             {

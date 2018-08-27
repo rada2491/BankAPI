@@ -145,6 +145,25 @@ namespace BankAPI.Migrations
                     b.ToTable("Services");
                 });
 
+            modelBuilder.Entity("BankAPI.Models.UserFavoriteAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ApplicationUserId");
+
+                    b.Property<int>("FavoriteAccountId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("FavoriteAccountId");
+
+                    b.ToTable("UserFavoriteAccount");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -260,6 +279,18 @@ namespace BankAPI.Migrations
                     b.HasOne("BankAPI.Models.ApplicationUser")
                         .WithMany("Accounts")
                         .HasForeignKey("ApplicationUserId");
+                });
+
+            modelBuilder.Entity("BankAPI.Models.UserFavoriteAccount", b =>
+                {
+                    b.HasOne("BankAPI.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("BankAPI.Models.FavoriteAccount", "FavoriteAccount")
+                        .WithMany()
+                        .HasForeignKey("FavoriteAccountId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

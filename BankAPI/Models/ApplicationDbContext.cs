@@ -18,5 +18,14 @@ namespace BankAPI.Models
         //public DbSet<User> Users { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<FavoriteAccount> FavoriteAccount { get; set; }
+
+
+        /*public DbSet<UserFavoriteAccount> UserFavoriteAccount { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserFavoriteAccount>()
+                .HasKey(o => new { o.User, o.FavoriteAccountId });
+        }*/
     }
 }
