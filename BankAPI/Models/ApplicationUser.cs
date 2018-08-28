@@ -14,20 +14,18 @@ namespace BankAPI.Models
         public ApplicationUser()
         {
             Accounts = new List<Account>();
+            FavAccounts = new List<UserFavoriteAccount>();
+            Payments = new List<Payments>();
         }
-
-        //[Required]
+        
         [UserType]
         public string UserType { get; set; }
-        //[Required(ErrorMessage = "Name is required")]
         [StringLength(20)]
         public string Name { get; set; }
         [StringLength(10)]
         public string socialNumber { get; set; }
-        //[Required(ErrorMessage = "Phone Number is required")]
         public List<Account> Accounts { get; set; }
-        /*[Required, DataType(DataType.Password)]
-        public string Password { get; set; }*/
-        //[Required]
+        public List<UserFavoriteAccount> FavAccounts { get; set; }
+        public List<Payments> Payments { get; set; }
     }
 }

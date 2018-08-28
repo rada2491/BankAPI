@@ -20,6 +20,6 @@ namespace BankAPI.Models
         [Required]
         [StringLength(10)]
         public string accountOwner { get; set; }
-
+        
     }
 }

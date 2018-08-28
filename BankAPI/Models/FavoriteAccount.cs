@@ -8,18 +8,14 @@ namespace BankAPI.Models
 {
     public class FavoriteAccount
     {
-        public int Id { get; set; }
-        [Required]
-        [StringLength(10)]
-        public string AccountNumber { get; set; }
-        [Required]
-        [StringLength(30)]
-        public string AccountOwner { get; set; }
-        [Required]
-        [DataType(DataType.EmailAddress)]
-        [EmailAddress]
-        public string Email { get; set; }
-        [Required]
-        public string OwnerPhone { get; set; }
+        public FavoriteAccount()
+        {
+            UserFavoriteAccount = new List<UserFavoriteAccount>();
+        }
+
+        [Key]
+        public string accountNumber { get; set; }
+
+        public List<UserFavoriteAccount> UserFavoriteAccount { get; set; }
     }
 }

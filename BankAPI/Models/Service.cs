@@ -8,9 +8,16 @@ namespace BankAPI.Models
 {
     public class Service
     {
+
+        public Service()
+        {
+            Payments = new List<Payments>();
+        }
         public int Id { get; set; }
         [Required]
         [StringLength(20)]
         public string Name { get; set; }
+
+        public List<Payments> Payments { get; set; }
     }
 }

@@ -13,7 +13,10 @@ namespace BankAPI.Models
         public User()
         {
             Accounts = new List<Account>();
+            FavAccounts = new List<UserFavoriteAccount>();
+            UserFavAccount = new List<UserFavoriteAccount>();
         }
+    
 
         //[Required]
         [UserType]
@@ -31,6 +34,8 @@ namespace BankAPI.Models
         [StringLength(30)]
         public string Email { get; set; }
         public List<Account> Accounts { get; set; }
+        public List<UserFavoriteAccount> FavAccounts { get; set; }
+        public List<UserFavoriteAccount> UserFavAccount { get; set; }
         //[Required]
         [StringLength(10)]
         public string socialNumber { get; set; }

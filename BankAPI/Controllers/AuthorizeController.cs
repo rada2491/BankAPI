@@ -179,7 +179,7 @@ namespace BankAPI.Controllers
                expires: expiration,
                signingCredentials: creds);
 
-
+            //add id_user in body
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),

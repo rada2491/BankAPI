@@ -107,27 +107,29 @@ namespace BankAPI.Migrations
 
             modelBuilder.Entity("BankAPI.Models.FavoriteAccount", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("accountNumber")
+                        .ValueGeneratedOnAdd();
 
-                    b.Property<string>("AccountNumber")
-                        .IsRequired()
-                        .HasMaxLength(10);
-
-                    b.Property<string>("AccountOwner")
-                        .IsRequired()
-                        .HasMaxLength(30);
-
-                    b.Property<string>("Email")
-                        .IsRequired();
-
-                    b.Property<string>("OwnerPhone")
-                        .IsRequired();
-
-                    b.HasKey("Id");
+                    b.HasKey("accountNumber");
 
                     b.ToTable("FavoriteAccount");
+                });
+
+            modelBuilder.Entity("BankAPI.Models.Payments", b =>
+                {
+                    b.Property<string>("ApplicationUserId");
+
+                    b.Property<int>("ServiceId");
+
+                    b.Property<float>("outBalance");
+
+                    b.Property<bool>("state");
+
+                    b.HasKey("ApplicationUserId", "ServiceId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("BankAPI.Models.Service", b =>
@@ -147,21 +149,15 @@ namespace BankAPI.Migrations
 
             modelBuilder.Entity("BankAPI.Models.UserFavoriteAccount", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
                     b.Property<string>("ApplicationUserId");
 
-                    b.Property<int>("FavoriteAccountId");
+                    b.Property<string>("FavoriteAccountId");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
+                    b.HasKey("ApplicationUserId", "FavoriteAccountId");
 
                     b.HasIndex("FavoriteAccountId");
 
-                    b.ToTable("UserFavoriteAccount");
+                    b.ToTable("UserFavoriteAccounts");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -281,14 +277,28 @@ namespace BankAPI.Migrations
                         .HasForeignKey("ApplicationUserId");
                 });
 
+            modelBuilder.Entity("BankAPI.Models.Payments", b =>
+                {
+                    b.HasOne("BankAPI.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany("Payments")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("BankAPI.Models.Service", "Service")
+                        .WithMany("Payments")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("BankAPI.Models.UserFavoriteAccount", b =>
                 {
                     b.HasOne("BankAPI.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId");
+                        .WithMany("FavAccounts")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("BankAPI.Models.FavoriteAccount", "FavoriteAccount")
-                        .WithMany()
+                        .WithMany("UserFavoriteAccount")
                         .HasForeignKey("FavoriteAccountId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
