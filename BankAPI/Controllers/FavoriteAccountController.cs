@@ -29,7 +29,6 @@ namespace BankAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult GetByUserId(int id)
         {
-            //corregir
             var favAco = context.UserFavoriteAccounts.Where(x => x.ApplicationUserId == id.ToString()).ToList();
 
             if (favAco == null)
@@ -47,15 +46,17 @@ namespace BankAPI.Controllers
             if(!accExist)
             {
                 ModelState.AddModelError("accountExist", "Account not found");
-                
+                return BadRequest(ModelState);
             }
             var accFav = context.FavoriteAccount.Any(x => x.accountNumber == usFav.FavoriteAccountId);
             if (!accFav)
             {
-                //aqui crea la favorita y la inserta
+                context.UserFavoriteAccounts.Add(usFav);
+                context.SaveChanges();
+                return Ok(usFav);
             }
 
-        return BadRequest(ModelState);
+            return BadRequest(ModelState);
         }
     }
 }
