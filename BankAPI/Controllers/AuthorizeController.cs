@@ -163,7 +163,8 @@ namespace BankAPI.Controllers
               var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
-                new Claim("miValor", "Lo que yo quiera"),
+                new Claim(JwtRegisteredClaimNames.Typ, userInfo.UserType),
+                new Claim(JwtRegisteredClaimNames.NameId, userInfo.socialNumber),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -177,7 +178,8 @@ namespace BankAPI.Controllers
                audience: "yourdomain.com",
                claims: claims,
                expires: expiration,
-               signingCredentials: creds);
+               signingCredentials: creds
+               );
 
             //add id_user in body
             return Ok(new

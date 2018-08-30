@@ -27,11 +27,17 @@ namespace BankAPI.Controllers
             _context = context;
         }
 
-        [HttpGet("{id}")]
-        public IActionResult getInfoUser(int id)
+        [HttpGet]
+        public IActionResult getInfoUser()
         {
 
-            var user = _userManager.Users.FirstOrDefault(x => x.socialNumber == id.ToString());
+            var dict = new Dictionary<string, string>();
+
+            HttpContext.User.Claims.ToList().ForEach(item => dict.Add(item.Type, item.Value));
+
+            var idUser = dict["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+
+            var user = _userManager.Users.FirstOrDefault(x => x.socialNumber == idUser);
 
             if(user == null)
             {

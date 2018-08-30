@@ -34,8 +34,6 @@ namespace BankAPI
 
             services.AddCors();
 
-
-
             services.AddDbContext<Models.ApplicationDbContext>(options => 
             options.UseSqlServer(Configuration.GetConnectionString("APIConnection")));
 
