@@ -1,0 +1,2 @@
+//"APIConnection": "Data Source=DESKTOP-1RPQADF\\SQLEXPRESS;Initial Catalog=BackEndAPI;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False" //laptop
+//"APIConnection": "Data Source=CARLOS\\SQLEXPRESS;Initial Catalog=BackEndAPI;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False" //personal
