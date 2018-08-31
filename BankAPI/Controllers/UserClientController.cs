@@ -31,7 +31,6 @@ namespace BankAPI.Controllers
         public IActionResult getInfoUser()
         {
 
-            
             var dict = new Dictionary<string, string>();
 
             HttpContext.User.Claims.ToList().ForEach(item => dict.Add(item.Type, item.Value));
