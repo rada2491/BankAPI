@@ -32,13 +32,12 @@ namespace BankAPI.Controllers
         public IActionResult getAll()
         {
 
-            var dict = new Dictionary<string, string>();
+            /*var dict = new Dictionary<string, string>();
 
             HttpContext.User.Claims.ToList().ForEach(item => dict.Add(item.Type, item.Value));
 
-            
+            var idUser = dict["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];*/
 
-            return Ok(dict);
             var user = _userManager.Users.ToList();
             var usList = new List<User>();
 
