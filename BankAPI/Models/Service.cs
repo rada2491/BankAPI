@@ -17,6 +17,10 @@ namespace BankAPI.Models
         [Required]
         [StringLength(20)]
         public string Name { get; set; }
+        [Required]
+        public bool Active { get; set; }
+        [Required]
+        public string Description { get; set; }
 
         public List<Payments> Payments { get; set; }
     }

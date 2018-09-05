@@ -26,31 +26,75 @@ namespace BankAPI.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetByUserId(int id)
+        [HttpGet]
+        public IActionResult GetByUserId()
         {
-            var favAco = context.UserFavoriteAccounts.Where(x => x.ApplicationUserId == id.ToString()).ToList();
+            var dict = new Dictionary<string, string>();
+            var favList = new List<FavOwner>();
+
+            HttpContext.User.Claims.ToList().ForEach(item => dict.Add(item.Type, item.Value));
+
+            var idUser = dict["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+
+            var usuario = _userManager.Users.SingleOrDefault(x => x.socialNumber == idUser);
+
+            var favAco = context.UserFavoriteAccounts.Where(x => x.ApplicationUserId == usuario.Id
+            ).ToList();
 
             if (favAco == null)
             {
                 return NotFound();
             }
+            else
+            {
+                foreach (var user in favAco)
+                {
+                    try
+                    {
+                        var account = context.Accounts.SingleOrDefault(x => x.AccountNumber == user.FavoriteAccountId);
+                        var uss = _userManager.Users.SingleOrDefault(x => x.socialNumber == account.accountOwner);
 
-            return Ok(favAco);
+                        var favAcc = new FavOwner()
+                        {
+                            socialNumber = uss.socialNumber,
+                            accountOwner = uss.Name,
+                            accountNumber = account.AccountNumber,
+                            currency = account.Currency
+                        };
+
+                        favList.Add(favAcc);
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                }
+                return Ok(favList);
+            }
         }
 
         [HttpPost]
         public IActionResult createFavorite([FromBody] UserFavoriteAccount usFav)
         {
             var accExist = context.Accounts.Any(x => x.AccountNumber == usFav.FavoriteAccountId);
-            if(!accExist)
+            if (!accExist)
             {
                 ModelState.AddModelError("accountExist", "Account not found");
                 return BadRequest(ModelState);
             }
-            var accFav = context.FavoriteAccount.Any(x => x.accountNumber == usFav.FavoriteAccountId);
+            var usFa = _userManager.Users.SingleOrDefault(x => x.socialNumber == usFav.ApplicationUserId);
+            var accFav = context.UserFavoriteAccounts.Any(x => (x.FavoriteAccountId == usFav.FavoriteAccountId) && (x.ApplicationUserId == usFav.ApplicationUserId));
+            FavoriteAccount fa = new FavoriteAccount();
             if (!accFav)
             {
+                var exiFav = context.FavoriteAccount.Any(x => x.accountNumber == usFav.FavoriteAccountId);
+                if (!exiFav)
+                {
+                    fa.accountNumber = usFav.FavoriteAccountId;
+                    context.FavoriteAccount.Add(fa);
+                    context.SaveChanges();
+                }
+                usFav.ApplicationUserId = usFa.Id;
                 context.UserFavoriteAccounts.Add(usFav);
                 context.SaveChanges();
                 return Ok(usFav);

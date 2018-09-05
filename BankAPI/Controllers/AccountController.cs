@@ -33,10 +33,18 @@ namespace BankAPI.Controllers
             return context.Accounts.ToList();
         }
 
-        [HttpGet("{id}", Name = ("accountCreated"))]
-        public IActionResult GetByUserId(int id)
+        [HttpGet]
+        [Route("useAccount")]
+        public IActionResult GetByUserId()
         {
-            var acco = context.Accounts.Where(x => x.accountOwner == id.ToString()).ToList();
+
+            var dict = new Dictionary<string, string>();
+
+            HttpContext.User.Claims.ToList().ForEach(item => dict.Add(item.Type, item.Value));
+
+            var idUser = dict["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+           
+            var acco = context.Accounts.Where(x => x.accountOwner == idUser).ToList();
 
             if (acco == null)
             {
