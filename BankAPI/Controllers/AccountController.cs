@@ -33,6 +33,29 @@ namespace BankAPI.Controllers
             return context.Accounts.ToList();
         }
 
+        [HttpPost]
+        [Route("getAccount")]
+        public IActionResult GetByNumAcc(FavoriteAccount fav)
+        {
+
+            var account = context.Accounts.FirstOrDefault(x => x.AccountNumber == fav.accountNumber);
+            
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            var client = _userManager.Users.FirstOrDefault(x => x.socialNumber == account.accountOwner);
+
+            var accountFound = new AccountFound
+            {
+                socialNumber = client.socialNumber,
+                accountOwner = client.Name
+            };
+
+            return Ok(accountFound);
+        }
+
         [HttpGet]
         [Route("useAccount")]
         public IActionResult GetByUserId()
