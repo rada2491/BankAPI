@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using BankAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace BankAPI.Controllers
 {
@@ -135,21 +137,70 @@ namespace BankAPI.Controllers
         [Route("transaction")]
         public IActionResult transaction([FromBody] Transaction tran)
         {
-            var ori = context.Accounts.FirstOrDefault(x => x.AccountNumber == tran.origin);
-            var dest = context.Accounts.FirstOrDefault(x => x.AccountNumber == tran.destiny);
-
-            if(ori.Balance < tran.mount)
+            try
             {
-                ModelState.AddModelError("mount", "Not enough money in the origin account.");
-                return BadRequest(ModelState);
+                var ori = context.Accounts.FirstOrDefault(x => x.AccountNumber == tran.origin);
+                var dest = context.Accounts.FirstOrDefault(x => x.AccountNumber == tran.destiny);
+
+                string url = "http://free.currencyconverterapi.com/api/v5/convert?q=USD_CRC&compact=y";
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = WebRequestMethods.Http.Get;
+                request.Accept = "application/json";
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                string myResponse = "";
+                using (System.IO.StreamReader sr = new System.IO.StreamReader(response.GetResponseStream()))
+                {
+                    myResponse = sr.ReadToEnd();
+                }
+
+                dynamic stuff = JsonConvert.DeserializeObject(myResponse);
+
+                float tipoCambio = stuff.USD_CRC.val;
+                float colDol = 0;
+                float dolCol = 0;
+
+                if (ori.Balance < tran.amount)
+                {
+                    ModelState.AddModelError("mount", "Not enough money in the origin account.");
+                    return BadRequest(ModelState);
+                }
+
+                if (ori.Currency != dest.Currency)
+                {
+                    if (ori.Currency == "Colons")
+                    {
+
+                        colDol = tran.amount / tipoCambio;
+                        ori.Balance = ori.Balance - tran.amount;
+                        dest.Balance = dest.Balance + colDol;
+                        context.SaveChanges();
+                        return Ok();
+                    }
+
+                    else
+                    {
+                        dolCol = tran.amount * tipoCambio;
+                        ori.Balance = ori.Balance - tran.amount;
+                        dest.Balance = dest.Balance + dolCol;
+                        context.SaveChanges();
+                        return Ok();
+                    }
+                }
+
+                ori.Balance = ori.Balance - tran.amount;
+                dest.Balance = dest.Balance + tran.amount;
+
+                context.SaveChanges();
+
+                return Ok();
             }
-
-            ori.Balance = ori.Balance - tran.mount;
-            dest.Balance = dest.Balance + tran.mount;
-
-            context.SaveChanges();
-
-            return Ok();
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+            
         }
 
     }
