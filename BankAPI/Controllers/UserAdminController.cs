@@ -28,6 +28,20 @@ namespace BankAPI.Controllers
             _context = context;
         }
 
+        [HttpPost]
+        [Route("getUser")]
+        public IActionResult getUser(UserFound id)
+        {
+            var user = _userManager.Users.FirstOrDefault(x => x.socialNumber == id.socialNumber);
+
+            if(user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+
         [HttpGet]
         public IActionResult getAll()
         {
