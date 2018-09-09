@@ -9,6 +9,7 @@ namespace BankAPI.Models
     {
         public string origin { get; set; }
         public string destiny { get; set; }
-        public float mount { get; set; }
+        public float amount { get; set; }
+        public string currency { get; set; }
     }
 }
