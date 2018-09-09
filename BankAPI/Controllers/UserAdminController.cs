@@ -30,7 +30,7 @@ namespace BankAPI.Controllers
 
         [HttpPost]
         [Route("getUser")]
-        public IActionResult getUser(UserFound id)
+        public IActionResult getUser([FromBody] UserFound id)
         {
             var user = _userManager.Users.FirstOrDefault(x => x.socialNumber == id.socialNumber);
 
