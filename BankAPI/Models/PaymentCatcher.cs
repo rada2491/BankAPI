@@ -11,5 +11,6 @@ namespace BankAPI.Models
         public bool state { get; set; }
         public string ApplicationUserId { get; set; }
         public float outBalance { get; set; }
+        public string currency { get; set; }
     }
 }
