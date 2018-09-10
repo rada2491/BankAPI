@@ -14,9 +14,11 @@ namespace BankAPI.Models
         [Required]
         public bool state { get; set; }
 
-        
+        public string servicesName { get; set; }
+
         public string ApplicationUserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
+        public string Currency { get; set; }
 
         public int ServiceId { get; set; }
         public Service Service { get; set; }
